@@ -76,7 +76,7 @@ async function run() {
                     core.debug(`  Added to del list '${workflow.name}' workflow run ${run.id}`);
                     del_runs.push(run);
                 } else {
-                    console.log(`👻 Skipped:  '${workflow.name}' - https://github.com/Jumpman-Frontend/jumpman-sites/actions/runs/${run.id} - Executed: ${run.created_at}`);
+                    console.log(`👻 Skipped: '${workflow.name}' - https://github.com/Jumpman-Frontend/jumpman-sites/actions/runs/${run.id} - Executed: ${run.created_at}`);
                 }
             }
 
@@ -88,7 +88,7 @@ async function run() {
                     Skip_runs = del_runs.slice(-keep_minimum_runs);
                     del_runs = del_runs.slice(0, -keep_minimum_runs);
                     for (const Skipped of Skip_runs) {
-                        console.log(`👻 Skipped '${workflow.name}' workflow run ${Skipped.id}: created at ${Skipped.created_at}`);
+                        console.log(`👻 Skipped: '${workflow.name}' - https://github.com/Jumpman-Frontend/jumpman-sites/actions/runs/${Skipped.id} - Executed: ${Skipped.created_at}`);
                     }
                 }
                 core.debug(`Deleting ${del_runs.length} runs for '${workflow.name}' workflow`);

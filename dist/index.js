@@ -61,7 +61,8 @@ async function run() {
             for (const run of runs) {
                 core.debug(`Run: '${workflow.name}' workflow run ${run.id} (status=${run.status})`);
                 if (run.status !== "completed") {
-                    console.log(`⏭️ Skipped: ${workflow.name} - https://github.com/${repository}/actions/runs/${run.id} - Reason: ${run.status}`);
+                    console.log(`⏭️ Skipped: ${workflow.name} - https://github.com/${repository}/actions/runs/${run.id} - Reason: ${run.status.replace(/_/g, ' ')}`);
+
                     continue;
                 }
                 if (

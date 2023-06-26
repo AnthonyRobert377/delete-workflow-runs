@@ -60,7 +60,7 @@ async function run() {
             for (const run of runs) {
                 core.debug(`Run: '${workflow.name}' workflow run ${run.id} (status=${run.status})`);
                 if (run.status !== "completed") {
-                    console.log(`👻 Skipped '${workflow.name}' workflow run ${run.id}: it is in '${run.status}' state`);
+                    console.log(`👻 Skipped: ${workflow.name} - https://github.com/Jumpman-Frontend/jumpman-sites/actions/runs/${run.id} - Reason: ${run.status}`);
                     continue;
                 }
                 if (delete_run_by_conclusion_pattern && delete_run_by_conclusion_pattern.toLowerCase() !== "all"
@@ -76,7 +76,7 @@ async function run() {
                     core.debug(`  Added to del list '${workflow.name}' workflow run ${run.id}`);
                     del_runs.push(run);
                 } else {
-                    console.log(`👻 Skipped: '${workflow.name}' - https://github.com/Jumpman-Frontend/jumpman-sites/actions/runs/${run.id} - Executed: ${run.created_at}`);
+                    console.log(`👻 Skipped: ${workflow.name} - https://github.com/Jumpman-Frontend/jumpman-sites/actions/runs/${run.id} - Executed: ${run.created_at}`);
                 }
             }
 
@@ -88,14 +88,14 @@ async function run() {
                     Skip_runs = del_runs.slice(-keep_minimum_runs);
                     del_runs = del_runs.slice(0, -keep_minimum_runs);
                     for (const Skipped of Skip_runs) {
-                        console.log(`👻 Skipped: '${workflow.name}' - https://github.com/Jumpman-Frontend/jumpman-sites/actions/runs/${Skipped.id} - Executed: ${Skipped.created_at}`);
+                        console.log(`👻 Skipped: ${workflow.name} - https://github.com/Jumpman-Frontend/jumpman-sites/actions/runs/${Skipped.id} - Executed: ${Skipped.created_at}`);
                     }
                 }
                 core.debug(`Deleting ${del_runs.length} runs for '${workflow.name}' workflow`);
                 for (const del of del_runs) {
                     core.debug(`Deleting '${workflow.name}' workflow run ${del.id}`);
                     if (dry_run) {
-                        console.log(`[dry-run] 🚀 Delete run ${del.id} of '${workflow.name}' workflow`);
+                        console.log(`🗑️ Delete: ${workflow.name} - #${del.id}`);
                         continue;
                     }
                     await octokit.actions.deleteWorkflowRun({
@@ -103,13 +103,14 @@ async function run() {
                         repo: repo_name,
                         run_id: del.id
                     });
-                    console.log(`🚀 Delete run ${del.id} of '${workflow.name}' workflow`);
+                    console.log(`🗑️ Deleted: ${workflow.name} - #${del.id}`);
                 }
-                console.log(`✅ ${arr_length} runs of '${workflow.name}' workflow deleted.`);
+                console.log(`----------------------------------------------------------------`);
+                console.log(`✅ Jobs Deleted: ${arr_length}`);
             }
         }
 
-        console.log(`🔎 Workflow runs found: ${totalWorkflowRuns}`);
+        console.log(`🔎 Jobs found: ${totalWorkflowRuns}`);
     } catch (error) {
         core.setFailed(error.message);
     }

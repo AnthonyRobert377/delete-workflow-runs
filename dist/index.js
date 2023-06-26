@@ -76,7 +76,7 @@ async function run() {
                     core.debug(`  Added to del list '${workflow.name}' workflow run ${run.id}`);
                     del_runs.push(run);
                 } else {
-                    console.log(`👻 Skipped '${workflow.name}' workflow run ${run.id}: created at ${run.created_at}`);
+                    console.log(`👻 Skipped '${workflow.name}' - #${run.id} - Run: ${run.created_at}`);
                 }
             }
 
@@ -109,7 +109,7 @@ async function run() {
             }
         }
 
-        console.log(`💬 found total of ${totalWorkflowRuns} workflow run(s)`);
+        console.log(`🔎 Workflow runs found: ${totalWorkflowRuns}`);
     } catch (error) {
         core.setFailed(error.message);
     }

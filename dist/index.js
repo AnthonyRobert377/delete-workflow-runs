@@ -113,7 +113,6 @@ async function run() {
                     console.log(`🗑️ Deleted: ${workflow.name} - #${del.id}`);
                     deletedJobs++; // Increment deleted jobs count
                 }
-
             }
         }
 
@@ -121,7 +120,6 @@ async function run() {
         console.log(`🔎 Jobs found: ${totalWorkflowRuns}`);
         console.log(`⏭️ Jobs Skipped ${totalWorkflowRuns - deletedJobs}`);
         console.log(`✅ Jobs deleted: ${deletedJobs}`);
-
     } catch (error) {
         core.setFailed(error.message);
     }

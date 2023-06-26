@@ -3,18 +3,18 @@ const core = require("@actions/core");
 async function run() {
     try {
         // Fetch all the inputs
-        const token = core.getInput('token');
-        const url = core.getInput('baseUrl');
-        const repository = core.getInput('repository');
-        const retain_days = Number(core.getInput('retain_days'));
-        const keep_minimum_runs = Number(core.getInput('keep_minimum_runs'));
-        const delete_workflow_pattern = core.getInput('delete_workflow_pattern');
-        const delete_workflow_by_state_pattern = core.getInput('delete_workflow_by_state_pattern');
-        const delete_run_by_conclusion_pattern = core.getInput('delete_run_by_conclusion_pattern');
-        const dry_run = core.getInput('dry_run');
+        const token = core.getInput("token");
+        const url = core.getInput("baseUrl");
+        const repository = core.getInput("repository");
+        const retain_days = Number(core.getInput("retain_days"));
+        const keep_minimum_runs = Number(core.getInput("keep_minimum_runs"));
+        const delete_workflow_pattern = core.getInput("delete_workflow_pattern");
+        const delete_workflow_by_state_pattern = core.getInput("delete_workflow_by_state_pattern");
+        const delete_run_by_conclusion_pattern = core.getInput("delete_run_by_conclusion_pattern");
+        const dry_run = core.getInput("dry_run");
 
         // Split the input 'repository' (format {owner}/{repo}) to be {owner} and {repo}
-        const splitRepository = repository.split('/');
+        const splitRepository = repository.split("/");
         if (splitRepository.length !== 2 || !splitRepository[0] || !splitRepository[1]) {
             throw new Error(`Invalid repository '${repository}'. Expected format {owner}/{repo}.`);
         }
@@ -33,7 +33,7 @@ async function run() {
             console.log(`💬 workflows containing '${delete_workflow_pattern}' will be targeted`);
             workflows = workflows.filter(({ name, path }) => {
                 const filename = path.replace(".github/workflows/");
-                return [name, filename].some(x => x.indexOf(delete_workflow_pattern) !== -1);
+                return [name, filename].some((x) => x.indexOf(delete_workflow_pattern) !== -1);
             });
         }
 
@@ -43,6 +43,7 @@ async function run() {
         }
 
         let totalWorkflowRuns = 0;
+        let deletedJobs = 0; // Variable to keep track of deleted jobs count
 
         for (const workflow of workflows) {
             core.debug(`Workflow: ${workflow.name} ${workflow.id} ${workflow.state}`);
@@ -52,7 +53,7 @@ async function run() {
             const runs = await octokit.paginate("GET /repos/:owner/:repo/actions/workflows/:workflow_id/runs", {
                 owner: repo_owner,
                 repo: repo_name,
-                workflow_id: workflow.id
+                workflow_id: workflow.id,
             });
 
             totalWorkflowRuns += runs.length;
@@ -63,8 +64,11 @@ async function run() {
                     console.log(`⏭️ Skipped: ${workflow.name} - https://github.com/Jumpman-Frontend/jumpman-sites/actions/runs/${run.id} - Reason: ${run.status}`);
                     continue;
                 }
-                if (delete_run_by_conclusion_pattern && delete_run_by_conclusion_pattern.toLowerCase() !== "all"
-                    && run.conclusion.indexOf(delete_run_by_conclusion_pattern) === -1) {
+                if (
+                    delete_run_by_conclusion_pattern &&
+                    delete_run_by_conclusion_pattern.toLowerCase() !== "all" &&
+                    run.conclusion.indexOf(delete_run_by_conclusion_pattern) === -1
+                ) {
                     core.debug(`  Skipping '${workflow.name}' workflow run ${run.id} because conclusion was ${run.conclusion}`);
                     continue;
                 }
@@ -83,7 +87,9 @@ async function run() {
             core.debug(`Delete list for '${workflow.name}' is ${del_runs.length} items`);
             const arr_length = del_runs.length - keep_minimum_runs;
             if (arr_length > 0) {
-                del_runs = del_runs.sort((a, b) => { return a.id - b.id; });
+                del_runs = del_runs.sort((a, b) => {
+                    return a.id - b.id;
+                });
                 if (keep_minimum_runs !== 0) {
                     Skip_runs = del_runs.slice(-keep_minimum_runs);
                     del_runs = del_runs.slice(0, -keep_minimum_runs);
@@ -101,16 +107,20 @@ async function run() {
                     await octokit.actions.deleteWorkflowRun({
                         owner: repo_owner,
                         repo: repo_name,
-                        run_id: del.id
+                        run_id: del.id,
                     });
                     console.log(`🗑️ Deleted: ${workflow.name} - #${del.id}`);
+                    deletedJobs++; // Increment deleted jobs count
                 }
-                console.log(`----------------------------------------------------------------`);
-                console.log(`✅ Jobs deleted: ${arr_length}`);
+
             }
         }
 
+        console.log(`----------------------------------------------------------------`);
         console.log(`🔎 Jobs found: ${totalWorkflowRuns}`);
+        console.log(`⏭️ Jobs Skipped ${totalWorkflowRuns - deletedJobs}`);
+        console.log(`✅ Jobs deleted: ${deletedJobs}`);
+
     } catch (error) {
         core.setFailed(error.message);
     }

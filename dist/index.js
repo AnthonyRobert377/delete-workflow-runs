@@ -76,7 +76,7 @@ async function run() {
                     core.debug(`  Added to del list '${workflow.name}' workflow run ${run.id}`);
                     del_runs.push(run);
                 } else {
-                    console.log(`👻 Skipped '${workflow.name}' - #${run.id} - Run: ${run.created_at}`);
+                    console.log(`👻 Skipped:  '${workflow.name}' - https://github.com/Jumpman-Frontend/jumpman-sites/actions/runs/${run.id} - Executed: ${run.created_at}`);
                 }
             }
 

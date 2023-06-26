@@ -12,6 +12,7 @@ async function run() {
         const delete_workflow_by_state_pattern = core.getInput("delete_workflow_by_state_pattern");
         const delete_run_by_conclusion_pattern = core.getInput("delete_run_by_conclusion_pattern");
         const dry_run = core.getInput("dry_run");
+        const repositoryUrl = core.getInput("repository_url");
 
         // Split the input 'repository' (format {owner}/{repo}) to be {owner} and {repo}
         const splitRepository = repository.split("/");
@@ -61,7 +62,7 @@ async function run() {
             for (const run of runs) {
                 core.debug(`Run: '${workflow.name}' workflow run ${run.id} (status=${run.status})`);
                 if (run.status !== "completed") {
-                    console.log(`⏭️ Skipped: ${workflow.name} - https://github.com/Jumpman-Frontend/jumpman-sites/actions/runs/${run.id} - Reason: ${run.status}`);
+                    console.log(`⏭️ Skipped: ${workflow.name} - https://github.com/${repositoryUrl}/actions/runs/${run.id} - Reason: ${run.status}`);
                     continue;
                 }
                 if (
@@ -80,7 +81,7 @@ async function run() {
                     core.debug(`  Added to del list '${workflow.name}' workflow run ${run.id}`);
                     del_runs.push(run);
                 } else {
-                    console.log(`⏭️ Skipped: ${workflow.name} - https://github.com/Jumpman-Frontend/jumpman-sites/actions/runs/${run.id} - Executed: ${run.created_at}`);
+                    console.log(`⏭️ Skipped: ${workflow.name} - https://github.com/${repositoryUrl}/actions/runs/${run.id} - Executed: ${run.created_at}`);
                 }
             }
 
@@ -94,7 +95,7 @@ async function run() {
                     Skip_runs = del_runs.slice(-keep_minimum_runs);
                     del_runs = del_runs.slice(0, -keep_minimum_runs);
                     for (const Skipped of Skip_runs) {
-                        console.log(`⏭️ Skipped: ${workflow.name} - https://github.com/Jumpman-Frontend/jumpman-sites/actions/runs/${Skipped.id} - Executed: ${Skipped.created_at}`);
+                        console.log(`⏭️ Skipped: ${workflow.name} - https://github.com/${repositoryUrl}/actions/runs/${Skipped.id} - Executed: ${Skipped.created_at}`);
                     }
                 }
                 core.debug(`Deleting ${del_runs.length} runs for '${workflow.name}' workflow`);
@@ -116,7 +117,7 @@ async function run() {
             }
         }
 
-        console.log(`----------------------------------------------------------------`);
+        console.log(`------------------------------------------------------------------------------------------------------------------------------------`);
         console.log(`🔎 Jobs found: ${totalWorkflowRuns}`);
         console.log(`⏭️ Jobs Skipped ${totalWorkflowRuns - deletedJobs}`);
         console.log(`✅ Jobs deleted: ${deletedJobs}`);

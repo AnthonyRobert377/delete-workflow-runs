@@ -13,6 +13,9 @@ async function run() {
         const delete_run_by_conclusion_pattern = core.getInput("delete_run_by_conclusion_pattern");
         const dry_run = core.getInput("dry_run");
 
+        console.log(`ℹ️ Delete Logs after ${retain_days}  days`);
+        console.log(`------------------------------------------------------------------------------------------------------------------------------------`);
+
         // Split the input 'repository' (format {owner}/{repo}) to be {owner} and {repo}
         const splitRepository = repository.split("/");
         if (splitRepository.length !== 2 || !splitRepository[0] || !splitRepository[1]) {
